@@ -3,7 +3,7 @@ from itertools import product
 import pytest
 import torch
 from torch.autograd import gradcheck
-import torch_scatter
+import tsd
 
 from .utils import grad_dtypes as dtypes, devices, tensor
 
@@ -17,7 +17,7 @@ def test_backward(func, device):
     src = torch.rand((index.size(0), 2), dtype=torch.double, device=device)
     src.requires_grad_()
 
-    op = getattr(torch_scatter, 'scatter_{}'.format(func))
+    op = getattr(tsd, 'scatter_{}'.format(func))
     data = (src, index, 0)
     assert gradcheck(op, data, eps=1e-6, atol=1e-4) is True
 
@@ -48,7 +48,7 @@ def test_arg_backward(test, dtype, device):
     index = tensor(test['index'], torch.long, device)
     grad = tensor(test['grad'], dtype, device)
 
-    op = getattr(torch_scatter, 'scatter_{}'.format(test['name']))
+    op = getattr(tsd, 'scatter_{}'.format(test['name']))
     out, _ = op(src, index, test['dim'], fill_value=test['fill_value'])
     out.backward(grad)
     assert src.grad.tolist() == test['expected']

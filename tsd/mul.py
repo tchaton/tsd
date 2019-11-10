@@ -1,13 +1,13 @@
 from torch.autograd import Function
 
-from torch_scatter.utils.ext import get_func
-from torch_scatter.utils.gen import gen
+from tsd.utils.ext import get_func
+from tsd.utils.gen import gen
 
 
-class ScatterDiv(Function):
+class ScatterMul(Function):
     @staticmethod
     def forward(ctx, out, src, index, dim):
-        func = get_func('scatter_div', src)
+        func = get_func('scatter_mul', src)
         func(src, index, out, dim)
 
         ctx.mark_dirty(out)
@@ -22,32 +22,31 @@ class ScatterDiv(Function):
 
         grad_src = None
         if ctx.needs_input_grad[1]:
-            grad_src = -(out * grad_out).gather(ctx.dim, index) / src
+            grad_src = (grad_out * out).gather(ctx.dim, index) / src
 
         return None, grad_src, None, None
 
 
-def scatter_div(src, index, dim=-1, out=None, dim_size=None, fill_value=1):
+def scatter_mul(src, index, dim=-1, out=None, dim_size=None, fill_value=1):
     r"""
     |
 
-    .. image:: https://raw.githubusercontent.com/rusty1s/pytorch_scatter/
-            master/docs/source/_figures/div.svg?sanitize=true
+    .. image:: https://raw.githubusercontent.com/rusty1s/pytsd/
+            master/docs/source/_figures/mul.svg?sanitize=true
         :align: center
         :width: 400px
 
     |
 
-    Divides all values from the :attr:`src` tensor into :attr:`out` at the
+    Multiplies all values from the :attr:`src` tensor into :attr:`out` at the
     indices specified in the :attr:`index` tensor along a given axis
     :attr:`dim`.If multiple indices reference the same location, their
-    **contributions divide** (`cf.` :meth:`~torch_scatter.scatter_add`).
+    **contributions multiply** (`cf.` :meth:`~tsd.scatter_add`).
 
     For one-dimensional tensors, the operation computes
 
     .. math::
-        \mathrm{out}_i = \mathrm{out}_i \cdot \prod_j
-        \frac{1}{\mathrm{src}_j}
+        \mathrm{out}_i = \mathrm{out}_i \cdot \prod_j \mathrm{src}_j
 
     where :math:`\prod_j` is over :math:`j` such that
     :math:`\mathrm{index}_j = i`.
@@ -73,22 +72,22 @@ def scatter_div(src, index, dim=-1, out=None, dim_size=None, fill_value=1):
 
     .. testcode::
 
-        from torch_scatter import scatter_div
+        from tsd import scatter_mul
 
-        src = torch.Tensor([[2, 1, 1, 4, 2], [1, 2, 1, 2, 4]]).float()
+        src = torch.Tensor([[2, 0, 3, 4, 3], [2, 3, 4, 2, 4]])
         index = torch.tensor([[4, 5, 4, 2, 3], [0, 0, 2, 2, 1]])
         out = src.new_ones((2, 6))
 
-        out = scatter_div(src, index, out=out)
+        out = scatter_mul(src, index, out=out)
 
         print(out)
 
     .. testoutput::
 
-       tensor([[1.0000, 1.0000, 0.2500, 0.5000, 0.5000, 1.0000],
-               [0.5000, 0.2500, 0.5000, 1.0000, 1.0000, 1.0000]])
+       tensor([[1., 1., 4., 3., 6., 0.],
+               [6., 4., 8., 1., 1., 1.]])
     """
     src, out, index, dim = gen(src, index, dim, out, dim_size, fill_value)
     if src.size(dim) == 0:  # pragma: no cover
         return out
-    return ScatterDiv.apply(out, src, index, dim)
+    return ScatterMul.apply(out, src, index, dim)

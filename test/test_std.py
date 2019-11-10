@@ -2,7 +2,7 @@ from itertools import product
 
 import pytest
 import torch
-from torch_scatter import scatter_std
+from tsd import scatter_std
 
 from .utils import grad_dtypes as dtypes, devices, tensor
 

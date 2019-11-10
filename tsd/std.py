@@ -1,14 +1,14 @@
 import torch
 
-from torch_scatter import scatter_add
-from torch_scatter.utils.gen import gen
+from tsd import scatter_add
+from tsd.utils.gen import gen
 
 
 def scatter_std(src, index, dim=-1, out=None, dim_size=None, unbiased=True):
     r"""
     |
 
-    .. image:: https://raw.githubusercontent.com/rusty1s/pytorch_scatter/
+    .. image:: https://raw.githubusercontent.com/rusty1s/pytsd/
             master/docs/source/_figures/std.svg?sanitize=true
         :align: center
         :width: 400px
@@ -17,7 +17,7 @@ def scatter_std(src, index, dim=-1, out=None, dim_size=None, unbiased=True):
 
     Computes the standard-deviation from all values from the :attr:`src` tensor
     into :attr:`out` at the indices specified in the :attr:`index` tensor along
-    a given axis :attr:`dim` (`cf.` :meth:`~torch_scatter.scatter_add`).
+    a given axis :attr:`dim` (`cf.` :meth:`~tsd.scatter_add`).
 
     For one-dimensional tensors, the operation computes
 

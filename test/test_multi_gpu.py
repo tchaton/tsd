@@ -1,6 +1,6 @@
 import pytest
 import torch
-from torch_scatter import scatter_max
+from tsd import scatter_max
 
 
 @pytest.mark.skipif(not torch.cuda.is_available(), reason='CUDA not available')

@@ -1,5 +1,5 @@
 import torch
-from torch_scatter import scatter_max, scatter_min
+from tsd import scatter_max, scatter_min
 
 
 def test_max_fill_value():

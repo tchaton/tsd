@@ -1,6 +1,6 @@
 import pytest
 import torch
-from torch_scatter import scatter_add
+from tsd import scatter_add
 
 from .utils import devices
 

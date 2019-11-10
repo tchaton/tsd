@@ -2,7 +2,7 @@ from itertools import product
 
 import pytest
 import torch
-import torch_scatter
+import tsd
 
 from .utils import dtypes, devices, tensor
 
@@ -117,7 +117,7 @@ def test_forward(test, dtype, device):
     index = tensor(test['index'], torch.long, device)
     expected = tensor(test['expected'], dtype, device)
 
-    op = getattr(torch_scatter, 'scatter_{}'.format(test['name']))
+    op = getattr(tsd, 'scatter_{}'.format(test['name']))
     out = op(src, index, test['dim'], fill_value=test['fill_value'])
 
     if isinstance(out, tuple):

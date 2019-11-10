@@ -1,8 +1,8 @@
 import torch
 from torch.autograd import Function
 
-from torch_scatter.utils.ext import get_func
-from torch_scatter.utils.gen import gen
+from tsd.utils.ext import get_func
+from tsd.utils.gen import gen
 
 
 class ScatterMax(Function):
@@ -37,7 +37,7 @@ def scatter_max(src, index, dim=-1, out=None, dim_size=None, fill_value=None):
     r"""
     |
 
-    .. image:: https://raw.githubusercontent.com/rusty1s/pytorch_scatter/
+    .. image:: https://raw.githubusercontent.com/rusty1s/pytsd/
             master/docs/source/_figures/max.svg?sanitize=true
         :align: center
         :width: 400px
@@ -47,7 +47,7 @@ def scatter_max(src, index, dim=-1, out=None, dim_size=None, fill_value=None):
     Maximizes all values from the :attr:`src` tensor into :attr:`out` at the
     indices specified in the :attr:`index` tensor along a given axis
     :attr:`dim`.If multiple indices reference the same location, their
-    **contributions maximize** (`cf.` :meth:`~torch_scatter.scatter_add`).
+    **contributions maximize** (`cf.` :meth:`~tsd.scatter_add`).
     The second return tensor contains index location in :attr:`src` of each
     maximum value (known as argmax).
 
@@ -82,7 +82,7 @@ def scatter_max(src, index, dim=-1, out=None, dim_size=None, fill_value=None):
 
     .. testcode::
 
-        from torch_scatter import scatter_max
+        from tsd import scatter_max
 
         src = torch.Tensor([[2, 0, 1, 4, 3], [0, 2, 1, 3, 4]])
         index = torch.tensor([[4, 5, 4, 2, 3], [0, 0, 2, 2, 1]])

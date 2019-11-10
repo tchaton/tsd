@@ -14,32 +14,32 @@ if (TORCH_MAJOR > 1) or (TORCH_MAJOR == 1 and TORCH_MINOR > 2):
     extra_compile_args += ['-DVERSION_GE_1_3']
 
 ext_modules = [
-    CppExtension('torch_scatter.scatter_cpu', ['cpu/scatter.cpp'],
+    CppExtension('tsd.scatter_cpu', ['cpu/scatter.cpp'],
+                 extra_compile_args=extra_compile_args),
+
+    CppExtension('tsd.hag_utils', ['hag_utils/hag.cpp'],
                  extra_compile_args=extra_compile_args)
 ]
 cmdclass = {'build_ext': torch.utils.cpp_extension.BuildExtension}
 
 if CUDA_HOME is not None:
     ext_modules += [
-        CUDAExtension('torch_scatter.scatter_cuda',
+        CUDAExtension('tsd.scatter_cuda',
                       ['cuda/scatter.cpp', 'cuda/scatter_kernel.cu'])
     ]
 
-__version__ = '1.3.2'
-url = 'https://github.com/rusty1s/pytorch_scatter'
+__version__ = '0.0.1'
 
 install_requires = []
 setup_requires = ['pytest-runner']
 tests_require = ['pytest', 'pytest-cov']
 
 setup(
-    name='torch_scatter',
+    name='tsd',
     version=__version__,
     description='PyTorch Extension Library of Optimized Scatter Operations',
     author='Matthias Fey',
     author_email='matthias.fey@tu-dortmund.de',
-    url=url,
-    download_url='{}/archive/{}.tar.gz'.format(url, __version__),
     keywords=[
         'pytorch',
         'scatter',
