@@ -39,7 +39,7 @@ std::tuple<covers_t, covers_t> find_argmax_from_redundancy(std::vector<covers_t>
   covers_t cover_i; 
   covers_t cover_j; 
   for (int i = 0; i < covers.size(); i++){
-    for (int j = i; j < covers.size(); j++){
+    for (int j = i + 1; j < covers.size(); j++){
       float capacity = redundancy(covers.at(i), covers.at(j));
       if (highest_capacity < capacity){
         highest_capacity = capacity;
