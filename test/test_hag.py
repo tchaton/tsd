@@ -4,6 +4,7 @@ import torch
 
 edge_indexes = torch.randint(0, 100, (2, 100))
 direction = 1
+capacity=100
 print(edge_indexes)
 
-print(graph_to_hag(edge_indexes, direction))
+print(graph_to_hag(edge_indexes, direction, capacity))
