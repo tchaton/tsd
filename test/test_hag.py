@@ -1,9 +1,17 @@
 from tsd.hag_utils import graph_to_hag
 import torch
 
-
-edge_indexes = torch.randint(0, 100, (2, 100))
+# 1 -> droite à gauche : 1 == source, 0 == target
+input_gnn = torch.tensor([ [0, 0, 0, 1, 1, 1, 2, 2, 3, 3], [1, 2, 3, 0, 2, 3, 0, 1, 0, 1] ])
+expected_hag = torch.tensor([ [1, 5, 0, 5, 4, 4, 0, 1, 2, 3], [0, 0, 1, 1, 2, 3, 4, 4, 5, 5] ])
 direction = 1
-print(edge_indexes)
 
-print(graph_to_hag(edge_indexes, direction))
+actual_hag = graph_to_hag(input_gnn, direction)
+
+print("direction", direction)
+print("input_gnn", input_gnn)
+
+print("expected_hag", expected_hag)
+print("actual_hag", torch.t(actual_hag))
+
+assert torch.equal(torch.t(actual_hag), expected_hag)

@@ -17,7 +17,7 @@ ext_modules = [
     CppExtension('tsd.scatter_cpu', ['cpu/scatter.cpp'],
                  extra_compile_args=extra_compile_args),
 
-    CppExtension('tsd.hag_utils', ['hag_utils/hag.cpp'],
+    CppExtension('tsd.hag_utils', ['hag_utils/hag.cpp', 'hag_utils/gnn_to_hag.cpp'],
                  extra_compile_args=extra_compile_args)
 ]
 cmdclass = {'build_ext': torch.utils.cpp_extension.BuildExtension}
