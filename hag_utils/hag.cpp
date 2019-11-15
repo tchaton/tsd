@@ -1,72 +1,75 @@
 #include <torch/extension.h>
-#include<torch/torch.h>
-#include<iostream>
-#include <vector> 
+#include <torch/torch.h>
+#include <iostream>
+#include <vector>
 
-struct covers_t {
-  at::Tensor value;
-  at::Tensor matches;
-};
+#include "gnn_to_hag.hpp"
 
-std::vector<covers_t> find_covers(at::Tensor t1, at::Tensor t2){
-    std::tuple<at::Tensor, at::Tensor> unique_t2 = at::_unique(t2);
-    at::Tensor uniques_t2 = std::get<0>(unique_t2);
-    std::vector<covers_t> covers;
-    for (int i = 0; i < uniques_t2.size(0); i++){
-      at::Tensor u = uniques_t2[i];
-      at::Tensor mask = at::eq(t2, u);
-      at::Tensor non_zero_mask = at::nonzero(mask);
-      at::Tensor non_zero_mask_filtered = at::narrow(non_zero_mask, 1, 1, 1);
-      at::Tensor t1_filtered = at::index_select(t1, 1, at::squeeze(non_zero_mask_filtered));
-      covers_t cover;
-      cover.value = u;
-      cover.matches = t1_filtered;
-      covers.push_back(cover);
-    }
-    return covers;
-}
+at::Tensor graph_to_torch(V_ID nvNewSrc,
+                    std::map<V_ID, std::set<V_ID>* >& inEdges)
+{
+  int numEdges = 0;
+  for (V_ID v = 0; v < nvNewSrc; v++)
+    if (inEdges.find(v) != inEdges.end())
+      numEdges += inEdges[v]->size();
 
-int redundancy(covers_t cover_1, covers_t cover_2){
-  at::Tensor maches_1 = cover_1.matches;
-  at::Tensor maches_2 = cover_2.matches;
-  at::Tensor maches_1_extended = at::unsqueeze(maches_1, -1);
-  at::Tensor redundancy_count = at::sum(maches_1_extended == maches_2);
-  return redundancy_count.item<float>();
-}
+  at::Tensor edge_indexes = torch::zeros({numEdges, 2}, torch::TensorOptions().dtype(torch::kInt64));
 
-std::tuple<covers_t, covers_t> find_argmax_from_redundancy(std::vector<covers_t> covers, at::Tensor source, at::Tensor target){
-  float highest_capacity = -1;
-  covers_t cover_i; 
-  covers_t cover_j; 
-  for (int i = 0; i < covers.size(); i++){
-    for (int j = i + 1; j < covers.size(); j++){
-      float capacity = redundancy(covers.at(i), covers.at(j));
-      if (highest_capacity < capacity){
-        highest_capacity = capacity;
-        cover_i = covers.at(i);
-        cover_j = covers.at(j);
+  E_ID count = 0;
+  for (V_ID v = 0; v < nvNewSrc; v++) {
+    if (inEdges.find(v) != inEdges.end()) {
+      std::set<V_ID>::const_iterator first = inEdges[v]->begin();
+      std::set<V_ID>::const_iterator last = inEdges[v]->end();
+      std::set<V_ID>::const_iterator it = first;
+      for (it = first; it != last; it++) {
+        edge_indexes[count][0] = *it;
+        edge_indexes[count][1] = v;
+        count ++;
       }
+
     }
   }
-  return {cover_i, cover_j};
+
+  return edge_indexes;
 }
 
-at::Tensor graph_to_hag(at::Tensor edge_indexes, int64_t direction, int64_t capacity = 100) {
-  int64_t dim = 0;
-  int64_t start = 0;
-  int64_t length = 1;
+void torch_to_graph(const at::Tensor edge_indexes,
+                    std::map<V_ID, std::set<V_ID>* >& inEdges,
+                    V_ID& maxNodeIndex,
+                    E_ID& numEdges)
+{
+  maxNodeIndex = 0;
+  numEdges = 0;
+  auto indexes_accessor = edge_indexes.accessor<long,2>();
+  for (V_ID i = 0; i < indexes_accessor.size(1); i++)
+  {
+    V_ID source = indexes_accessor[0][i];
+    V_ID target = indexes_accessor[1][i];
 
-  at::Tensor source;
-  at::Tensor target;
-  std::vector<covers_t> covers;
+    if (std::max(source, target) >= maxNodeIndex)
+      maxNodeIndex = std::max(source, target) + 1;
 
-  source = at::narrow(edge_indexes, dim, direction, length);
-  target = at::narrow(edge_indexes, dim, (direction + 1) % 2, length);
-  covers = find_covers(target, source);
+    // Populate the map of edges.
+    if (inEdges.find(target) == inEdges.end())
+      inEdges[target] = new std::set<V_ID>();
+    inEdges[target]->insert(source);
+  }
+}
 
-  std::tuple<covers_t, covers_t> cover_pair = find_argmax_from_redundancy(covers, source, target);
+at::Tensor graph_to_hag(at::Tensor edge_indexes, int64_t direction) {
+  std::map<V_ID, std::set<V_ID>* > inEdges;
+  V_ID maxNodeIndex = 0;
+  E_ID numEdges = 0;
+  torch_to_graph(edge_indexes, inEdges, maxNodeIndex, numEdges);
 
-  return source;
+  std::map<V_ID, std::set<V_ID>*> optInEdges;
+  std::vector<std::pair<V_ID, V_ID> > optRanges;
+  V_ID new_max_node_index;
+  V_ID maxDepth = 10;
+  V_ID maxWidth = 10;
+  transfer_graph(inEdges, optInEdges, optRanges, maxNodeIndex, numEdges, maxDepth, maxWidth, new_max_node_index);
+
+  return graph_to_torch(new_max_node_index, optInEdges);
 }
 
 PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
