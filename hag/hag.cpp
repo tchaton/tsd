@@ -2,7 +2,7 @@
 #include <torch/torch.h>
 #include <iostream>
 #include <vector>
-
+#include "hag.hpp"
 #include "gnn_to_hag.hpp"
 
 at::Tensor graph_to_torch(V_ID nvNewSrc,
@@ -26,10 +26,8 @@ at::Tensor graph_to_torch(V_ID nvNewSrc,
         edge_indexes[count][1] = v;
         count ++;
       }
-
     }
   }
-
   return edge_indexes;
 }
 
@@ -54,24 +52,4 @@ void torch_to_graph(const at::Tensor edge_indexes,
       inEdges[target] = new std::set<V_ID>();
     inEdges[target]->insert(source);
   }
-}
-
-at::Tensor graph_to_hag(at::Tensor edge_indexes, int64_t direction) {
-  std::map<V_ID, std::set<V_ID>* > inEdges;
-  V_ID maxNodeIndex = 0;
-  E_ID numEdges = 0;
-  torch_to_graph(edge_indexes, inEdges, maxNodeIndex, numEdges);
-
-  std::map<V_ID, std::set<V_ID>*> optInEdges;
-  std::vector<std::pair<V_ID, V_ID> > optRanges;
-  V_ID new_max_node_index;
-  V_ID maxDepth = 10;
-  V_ID maxWidth = 10;
-  transfer_graph(inEdges, optInEdges, optRanges, maxNodeIndex, numEdges, maxDepth, maxWidth, new_max_node_index);
-
-  return graph_to_torch(new_max_node_index, optInEdges);
-}
-
-PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
-  m.def("graph_to_hag", &graph_to_hag, "Graph to HAG (CPU)");
 }
