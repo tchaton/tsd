@@ -15,7 +15,11 @@ at::Tensor graph_to_hag(at::Tensor edge_indexes, int64_t direction, int64_t maxD
   std::vector<std::pair<V_ID, V_ID> > optRanges;
   V_ID new_max_node_index;
   transfer_graph(inEdges, optInEdges, optRanges, maxNodeIndex, numEdges, maxDepth, maxWidth, new_max_node_index);
-
+  std::cout << "optRanges" << std::endl;
+  for (int i = 0; i < optRanges.size(); i++)
+  {
+    std::cout << "[" << i << "] left = " << optRanges[i].first << " right = " << optRanges[i].second << std::endl;
+  }
   return graph_to_torch(new_max_node_index, optInEdges);
 }
 

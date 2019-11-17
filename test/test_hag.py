@@ -1,6 +1,7 @@
 from tsd.hag import graph_to_hag
 import torch
 
+print("Simple graph")
 # 1 -> droite à gauche : 1 == source, 0 == target
 input_gnn = torch.tensor([ [0, 0, 0, 1, 1, 1, 2, 2, 3, 3], [1, 2, 3, 0, 2, 3, 0, 1, 0, 1] ])
 expected_hag = torch.tensor([ [1, 5, 0, 5, 4, 4, 0, 1, 2, 3], [0, 0, 1, 1, 2, 3, 4, 4, 5, 5] ])
@@ -17,5 +18,22 @@ actual_hag = graph_to_hag(input_gnn, direction, maxDepth, maxWidth)
 
 #print("expected_hag", expected_hag)
 #print("actual_hag", torch.t(actual_hag))
+
+assert torch.equal(torch.t(actual_hag), expected_hag)
+
+print("Complex graph")
+# 1 -> droite à gauche : 1 == source, 0 == target
+input_gnn = torch.tensor([ [0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 6, 6],
+                           [1, 2, 3, 4, 0, 5, 6, 0, 5, 6, 0, 6, 0, 6, 1, 2, 1, 2, 3, 4] ])
+expected_hag = torch.tensor([ [1, 5, 0, 5, 4, 4, 0, 1, 2, 3], [0, 0, 1, 1, 2, 3, 4, 4, 5, 5] ])
+direction = 1
+
+actual_hag = graph_to_hag(input_gnn, direction, maxDepth, maxWidth)
+
+print("direction", direction)
+print("input_gnn", input_gnn)
+
+print("expected_hag", expected_hag)
+print("actual_hag", torch.t(actual_hag))
 
 assert torch.equal(torch.t(actual_hag), expected_hag)
