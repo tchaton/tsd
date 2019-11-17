@@ -12,8 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef _GNN_H_
-#define _GNN_H_
+#ifndef _GNN_TO_HAG_H_
+#define _GNN_TO_HAG_H_
+
 #include <stdio.h>
 #include <iostream>
 #include <sstream>

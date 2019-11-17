@@ -1,3 +1,6 @@
+#ifndef _HAG_H_
+#define _HAG_H_
+
 #include <torch/extension.h>
 #include <iostream>
 #include "gnn_to_hag.hpp"
@@ -14,3 +17,4 @@ void torch_to_graph(const at::Tensor edge_indexes,
                     V_ID& maxNodeIndex,
                     E_ID& numEdges);
 
+#endif

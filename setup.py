@@ -16,9 +16,9 @@ if (TORCH_MAJOR > 1) or (TORCH_MAJOR == 1 and TORCH_MINOR > 2):
 ext_modules = [
     CppExtension('tsd.scatter_cpu', ['cpu/scatter.cpp'],
                  extra_compile_args=extra_compile_args),
-    CppExtension('tsd.hag', ['hag/hag.cpp', 'hag/gnn_to_hag.cpp'],
+    CppExtension('tsd.hag', ['hag/graph_to_hag.cpp', 'hag/hag.cpp', 'hag/gnn_to_hag.cpp'],
                  extra_compile_args=extra_compile_args),
-    CppExtension('tsd.hag_scatter', ['hag/hag_scatter.cpp'],
+    CppExtension('tsd.hag_scatter', ['hag/hag_scatter.cpp', 'hag/hag.cpp', 'hag/gnn_to_hag.cpp'],
                  extra_compile_args=extra_compile_args),
 ]
 cmdclass = {'build_ext': torch.utils.cpp_extension.BuildExtension}

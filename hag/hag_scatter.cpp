@@ -11,7 +11,6 @@ void scatter_max(at::Tensor src, at::Tensor edge_indexes, at::Tensor out, int64_
   V_ID maxDepth = 10;
   V_ID maxWidth = 10;
   torch_to_graph(edge_indexes, inEdges, maxNodeIndex, numEdges);
-
 }
 
 PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
