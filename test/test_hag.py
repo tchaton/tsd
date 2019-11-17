@@ -1,5 +1,4 @@
 from tsd.hag import graph_to_hag
-from tsd.hag_scatter import scatter_max
 import torch
 
 # 1 -> droite à gauche : 1 == source, 0 == target

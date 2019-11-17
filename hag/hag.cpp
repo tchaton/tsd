@@ -2,6 +2,7 @@
 #include <torch/torch.h>
 #include <iostream>
 #include <vector>
+#include "hag.hpp"
 #include "gnn_to_hag.hpp"
 
 at::Tensor graph_to_torch(V_ID nvNewSrc,
