@@ -26,7 +26,6 @@ at::Tensor graph_to_torch(V_ID nvNewSrc,
         edge_indexes[count][1] = v;
         count ++;
       }
-
     }
   }
   return edge_indexes;
