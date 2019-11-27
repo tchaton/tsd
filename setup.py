@@ -26,7 +26,7 @@ cmdclass = {'build_ext': torch.utils.cpp_extension.BuildExtension}
 if CUDA_HOME is not None:
     ext_modules += [
         CUDAExtension('tsd.scatter_cuda',
-                      ['cuda/scatter.cpp', 'cuda/scatter_kernel.cu'])
+                      ['cuda/scatter.cpp', 'cuda/scatter_kernel.cu', 'cuda/gnn_kernel.cu', 'cuda/gnn_kernel.cpp'])
     ]
 
 __version__ = '0.0.1'
